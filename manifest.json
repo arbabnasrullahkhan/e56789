@@ -1,0 +1,20 @@
+{
+  "name": "Nexra Tech PK",
+  "short_name": "Nexra",
+  "start_url": "/discovery/home.html",
+  "display": "standalone",
+  "background_color": "#020202",
+  "theme_color": "#FF4A17",
+  "icons": [
+    {
+      "src": "/assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
