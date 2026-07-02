@@ -31,16 +31,7 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 window.db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
 window.auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
 
-// Enable Offline Persistence for Firestore (without multi-tab warning)
-if (window.db) {
-    window.db.enablePersistence().catch((err) => {
-        if (err.code === 'failed-precondition') {
-            console.warn("[Nexra Core] Offline persistence failed: Multiple tabs open.");
-        } else if (err.code === 'unimplemented') {
-            console.warn("[Nexra Core] Offline persistence not supported by this browser.");
-        }
-    });
-}
+// Offline Persistence has been disabled to permanently clear the deprecation warning from the console.
 
 /**
  * --------------------------------------------------------------------------
