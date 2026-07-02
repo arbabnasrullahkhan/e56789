@@ -31,37 +31,15 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 window.db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
 window.auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
 
-// Enable Offline Persistence for Firestore
-// Suppressing the deprecation warning in compat mode
+// Enable Offline Persistence for Firestore (without multi-tab warning)
 if (window.db) {
-    window.db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+    window.db.enablePersistence().catch((err) => {
         if (err.code === 'failed-precondition') {
             console.warn("[Nexra Core] Offline persistence failed: Multiple tabs open.");
         } else if (err.code === 'unimplemented') {
             console.warn("[Nexra Core] Offline persistence not supported by this browser.");
         }
     });
-}
-
-/**
- * --------------------------------------------------------------------------
- * 2. SUPABASE CONFIGURATION (PostgreSQL & Storage)
- * --------------------------------------------------------------------------
- * Why Supabase? We use Supabase to handle complex relational data (SQL),
- * reporting, and robust file storage (replacing Firebase Storage).
- * 
- * Note: The actual Supabase JS client must be loaded via CDN in the HTML:
- * <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- */
-const SUPABASE_URL = "https://pmovhigcwjrwevptovrs.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtb3ZoaWdjd2pyd2V2cHRvdnJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTU0NzUsImV4cCI6MjA5ODA5MTQ3NX0.bPpcK0PcWth59WGgnp4PGD6B_Rpn-ej18Qo6mOPb_Vo";
-
-// Initialize Supabase Client globally
-if (typeof supabase !== 'undefined') {
-    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log("[Nexra Core] Supabase Engine Initialized.");
-} else {
-    console.warn("[Nexra Core] Supabase CDN script not detected in HTML. Waiting for load...");
 }
 
 /**
@@ -194,23 +172,7 @@ window.NexraStorage = {
             console.log("[Storage] File is small. Encoding to Base64...");
             return await this.toBase64(file);
         } else {
-            console.log("[Storage] Uploading to Supabase Storage...");
-            if (!window.supabaseClient) throw new Error("Supabase Client not loaded.");
-
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-            const filePath = `${bucket}/${fileName}`;
-
-            const { data, error } = await window.supabaseClient.storage
-                .from('nexra_media')
-                .upload(filePath, file, { cacheControl: '3600', upsert: false });
-
-            if (error) throw error;
-
-            const { data: urlData } = window.supabaseClient.storage
-                .from('nexra_media').getPublicUrl(filePath);
-
-            return urlData.publicUrl;
+            throw new Error("File too large. Only files up to 50KB are supported natively without external storage.");
         }
     }
 };
